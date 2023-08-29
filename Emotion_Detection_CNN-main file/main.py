@@ -23,61 +23,57 @@ with open('p2.csv', 'r') as csv_file:
 
 engine = pyttsx3.init()
 
-# ... (import statements and loading data)
+st.title("Emotion-Based Motivational Quotes")
 
-def main():
-    st.title("Emotion-Based Motivational Quotes")
-    st.write("Welcome to the Emotion-Based Motivational Quotes App!")
-    st.write("Get ready to improve your mood!")
+st.write("Welcome to the Emotion-Based Motivational Quotes App!")
+st.write("Get ready to improve your mood!")
 
-    # Add a start button
-    start_button = st.button("Start Emotion Detection")
+# Add a start button
+start_button = st.button("Start Emotion Detection")
 
-    if start_button:
-        st.write("Press the button again for the next emotion detection...")
+# Initialize the webcam
+cap = cv2.VideoCapture(0)
 
-        with st.spinner("Detecting emotion..."):
-            ret, frame = cap.read()  # Read frame from the camera
+# Initialize the emotion and quote variables
+current_emotion = None
+current_quote = None
 
-            if frame is not None:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                faces = face_classifier.detectMultiScale(gray)
+# Run emotion detection when the button is clicked
+if start_button:
+    st.write("Press the button again for the next emotion detection...")
 
-                if len(faces) > 0:
-                    (x, y, w, h) = faces[0]
-                    roi_gray = gray[y:y+h, x:x+w]
-                    roi_gray = cv2.resize(roi_gray, (48, 48), interpolation=cv2.INTER_AREA)
+    ret, frame = cap.read()  # Read frame from the camera
 
-                    if np.sum([roi_gray]) != 0:
-                        roi = roi_gray.astype('float') / 255.0
-                        roi = img_to_array(roi)
-                        roi = np.expand_dims(roi, axis=0)
+    if frame is not None:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_classifier.detectMultiScale(gray)
 
-                        prediction = classifier.predict(roi)[0]
-                        max_index = np.argmax(prediction)
+        if len(faces) > 0:
+            (x, y, w, h) = faces[0]
+            roi_gray = gray[y:y+h, x:x+w]
+            roi_gray = cv2.resize(roi_gray, (48, 48), interpolation=cv2.INTER_AREA)
 
-                        if 0 <= max_index < len(emotion_labels):
-                            emotion = emotion_labels[max_index]
-                            selected_quote = random.choice(quotes.get(emotion, []))
+            if np.sum([roi_gray]) != 0:
+                roi = roi_gray.astype('float') / 255.0
+                roi = img_to_array(roi)
+                roi = np.expand_dims(roi, axis=0)
 
-                            st.markdown(f"**Emotion:** {emotion}")
-                            st.markdown(f"**Quote:** {selected_quote}")
+                prediction = classifier.predict(roi)[0]
+                max_index = np.argmax(prediction)
 
-                            engine.say(selected_quote)
-                            engine.runAndWait()
+                if 0 <= max_index < len(emotion_labels):
+                    emotion = emotion_labels[max_index]
 
-                            label_position = (x, y)
-                            cv2.putText(frame, emotion, label_position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    selected_quote = random.choice(quotes.get(emotion, []))
 
-                # Display the frame with the emotion text using Streamlit
-                st.image(frame, channels="BGR", use_column_width=True, caption='Emotion Detector')
+                    st.write(f"Emotion: {emotion}")
+                    st.write(f"Quote: {selected_quote}")
 
-if __name__ == "__main__":
-    cap = cv2.VideoCapture(0)
+                    engine.say(selected_quote)
+                    engine.runAndWait()
 
-    if not cap.isOpened():
-        st.error("Error: Webcam not available.")
-    else:
-        main()
+                    label_position = (x, y)
+                    cv2.putText(frame, emotion, label_position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    cap.release()  # Release the webcam
+        # Display the frame with the emotion text using Streamlit
+        st.image(frame, channels="BGR", use_column_width=True, caption='Emotion Detector')
