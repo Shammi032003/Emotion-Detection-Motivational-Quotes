@@ -1,7 +1,7 @@
 import streamlit as st
 import cv2
 from keras.models import load_model
-from tensorflow.keras.utils import img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
 import random
 import pyttsx3
@@ -37,6 +37,7 @@ cap = cv2.VideoCapture(0)
 # Initialize the emotion and quote variables
 current_emotion = None
 current_quote = None
+selected_quote = None  # Initialize selected_quote outside the loop
 
 # Run emotion detection when the button is clicked
 if start_button:
@@ -77,3 +78,7 @@ if start_button:
 
         # Display the frame with the emotion text using Streamlit
         st.image(frame, channels="BGR", use_column_width=True, caption='Emotion Detector')
+        
+if selected_quote:
+    engine.say(selected_quote)
+    engine.runAndWait()
