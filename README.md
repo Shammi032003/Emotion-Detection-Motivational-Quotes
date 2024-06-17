@@ -11,6 +11,8 @@ To run this project, you'll need the following libraries:
 - `tensorflow`
 - `numpy`
 - `pyttsx3`
+  
+Data Set Link - https://www.kaggle.com/jonathanoheix/face-expression-recognition-dataset
 
 You can install these libraries using pip:
 ```bash
